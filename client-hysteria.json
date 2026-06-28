@@ -1,0 +1,103 @@
+{
+  "log": { "level": "warn" },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-proxy",
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
+      },
+      {
+        "tag": "dns-google",
+        "type": "https",
+        "server": "8.8.8.8"
+      },
+      {
+	"tag": "dns-direct",
+	"type": "local"
+      }
+    ],
+    "rules": [
+      {
+        "domain": "my.domain.com",
+        "action": "route",
+        "server": "dns-google"
+      },
+      {
+        "domain_suffix": [ ".kontur", ".kontur.host" ],
+        "action": "route",
+        "server": "dns-direct"
+      },
+      {
+        "rule_set": [ "geosite-ru", "geoip-ru" ],
+        "action": "route",
+        "server": "dns-direct"
+      },
+      {
+	"query_type": [ "A", "AAAA" ],
+	"server": "dns-proxy"
+      }
+    ],
+    "final": "dns-google",
+    "strategy": "prefer_ipv4"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "address": "172.19.0.1/30",
+      "mtu": 1500,
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "mixed"
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "type": "hysteria2",
+      "server": "my.domain.com",
+      "server_port": 443,
+      "password": "REPLACE_ME",
+      "up_mbps": 100,
+      "down_mbps": 100,
+      "tls": { "enabled": true, "server_name": "my.domain.com" }
+    },
+    {
+      "tag": "direct",
+      "type": "direct"
+    }
+  ],
+  "route": {
+    "auto_detect_interface": true,
+    "default_domain_resolver": "dns-google",
+    "rule_set": [
+      {
+        "tag": "geosite-ru",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ru.srs",
+        "download_detour": "proxy"
+      },
+      {
+        "tag": "geoip-ru",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs",
+        "download_detour": "proxy"
+      }
+    ],
+    "rules": [
+      { "action": "sniff" },
+      { "protocol": "dns", "action": "hijack-dns" },
+      { "ip_is_private": true, "outbound": "direct" },
+      { "domain_suffix": [ ".kontur", ".kontur.host" ], "outbound": "direct" },
+      { "rule_set": "geosite-ru", "outbound": "direct" },
+      { "rule_set": "geoip-ru", "outbound": "direct" }
+    ],
+    "final": "proxy"
+  },
+  "experimental": {
+    "cache_file": { "enabled": true }
+  }
+}
