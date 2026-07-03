@@ -1,0 +1,63 @@
+x-common: &common
+  restart: unless-stopped
+  logging:
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+
+  restarter:
+    container_name: restarter
+    image: docker:cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ["/bin/sh", "-c"]
+    environment:
+      WEEK_IN_SECONDS: "604800"
+    command:
+      - |
+        while true; do sleep $$WEEK_IN_SECONDS; docker restart rule-fetcher && docker restart sing-box; done
+
+  rule-fetcher:
+    <<: *common
+    container_name: rule-fetcher
+    image: curlimages/curl
+    restart: no
+    volumes:
+      - ./sing-box/data:/data
+    user: root
+    environment:
+      RULES_TXT: "/data/rules.txt"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        rm -f $$RULES_TXT; for url in \
+        'https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt'; \
+        do curl --retry 3 $$url >> $$RULES_TXT && printf '\n' >> $$RULES_TXT; done
+
+  sing-box:
+    <<: *common
+    container_name: sing-box
+    image: ghcr.io/sagernet/sing-box
+    depends_on:
+      rule-fetcher:
+        condition: service_completed_successfully
+    ports:
+      - "443:443/udp"
+      - "8443:8443/tcp"
+    volumes:
+      - ./sing-box/config:/etc/sing-box
+      - ./sing-box/data:/var/lib/sing-box
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    environment:
+      CONFIG_DIR: "/etc/sing-box"
+      DATA_DIR: "/var/lib/sing-box"
+      RULES_TXT: "/var/lib/sing-box/rules.txt"
+      RULES_SRS: "/var/lib/sing-box/rules.srs"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        [ -e $$RULES_TXT ] && sing-box rule-set convert --type adguard --output $$RULES_SRS $$RULES_TXT && rm -f $$RULES_TXT; \
+        [ -e $$RULES_SRS ] && sing-box -D $$DATA_DIR -C $$CONFIG_DIR run
+

@@ -9,9 +9,9 @@
         "inet6_range": "fc00::/18"
       },
       {
-        "tag": "dns-google",
+        "tag": "dns-custom",
         "type": "https",
-        "server": "8.8.8.8"
+        "server": "77.88.8.8"
       },
       {
 	"tag": "dns-direct",
@@ -22,7 +22,7 @@
       {
         "domain": "my.domain.com",
         "action": "route",
-        "server": "dns-google"
+        "server": "dns-custom"
       },
       {
         "domain_suffix": [ ".kontur", ".kontur.host" ],
@@ -39,8 +39,8 @@
 	"server": "dns-proxy"
       }
     ],
-    "final": "dns-google",
-    "strategy": "prefer_ipv4"
+    "final": "dns-custom",
+    "strategy": "ipv4_only"
   },
   "inbounds": [
     {
@@ -70,7 +70,7 @@
   ],
   "route": {
     "auto_detect_interface": true,
-    "default_domain_resolver": "dns-google",
+    "default_domain_resolver": "dns-custom",
     "rule_set": [
       {
         "tag": "geosite-ru",

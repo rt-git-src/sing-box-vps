@@ -5,7 +5,7 @@
       {
         "tag": "dns-custom",
         "type": "https",
-        "server": "1.1.1.2"
+        "server": "8.8.8.8"
       }
     ],
     "final": "dns-custom",
@@ -28,7 +28,7 @@
         "certificate_path": "/etc/letsencrypt/live/my.domain.com/fullchain.pem",
         "key_path": "/etc/letsencrypt/live/my.domain.com/privkey.pem"
       },
-      "masquerade": "https://www.ny.gov"
+      "masquerade": "https://www.usa.gov"
     },
     {
       "type": "trojan",
@@ -59,10 +59,6 @@
     {
       "tag": "direct",
       "type": "direct"
-    },
-    {
-      "tag": "block",
-      "type": "block"
     }
   ],
   "route": {
@@ -70,17 +66,16 @@
     "default_domain_resolver": "dns-custom",
     "rule_set": [
       {
-        "tag": "geosite-ads",
-        "type": "remote",
+        "tag": "rules",
+        "type": "local",
         "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
-        "download_detour": "direct"
+        "path": "/var/lib/sing-box/rules.srs"
       }
     ],
-     "rules": [
+    "rules": [
       { "action": "sniff" },
-      { "ip_is_private": true, "outbound": "direct" },
-      { "rule_set": "geosite-ads", "outbound": "block" }
+      { "outbound": "direct", "ip_is_private": true },
+      { "action": "reject", "rule_set": "rules" }
     ],
     "final": "direct"
   },
