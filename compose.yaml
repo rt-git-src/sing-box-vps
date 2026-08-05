@@ -8,8 +8,8 @@ x-common: &common
 services:
 
   restarter:
-    container_name: restarter
     image: docker:cli
+    container_name: restarter
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     entrypoint: ["/bin/sh", "-c"]
@@ -21,8 +21,8 @@ services:
 
   rule-fetcher:
     <<: *common
-    container_name: rule-fetcher
     image: curlimages/curl
+    container_name: rule-fetcher
     restart: no
     volumes:
       - ./sing-box/data:/data
@@ -38,8 +38,8 @@ services:
 
   sing-box:
     <<: *common
+    image: ghcr.io/sagernet/sing-box:v1.13.16
     container_name: sing-box
-    image: ghcr.io/sagernet/sing-box
     depends_on:
       rule-fetcher:
         condition: service_completed_successfully
@@ -60,4 +60,3 @@ services:
       - |
         [ -e $$RULES_TXT ] && sing-box rule-set convert --type adguard --output $$RULES_SRS $$RULES_TXT && rm -f $$RULES_TXT; \
         [ -e $$RULES_SRS ] && sing-box -D $$DATA_DIR -C $$CONFIG_DIR run
-
