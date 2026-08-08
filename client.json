@@ -1,0 +1,166 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-proxy",
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
+      },
+      {
+        "tag": "dns-custom",
+        "type": "https",
+        "server": "77.88.8.8"
+      },
+      {
+        "tag": "dns-local",
+        "type": "local"
+      }
+    ],
+    "rules": [
+      {
+        "domain": "my.domain.com",
+        "action": "route",
+        "server": "dns-custom"
+      },
+      {
+        "rule_set": [
+	  "geosite-kontur"
+        ],
+        "action": "route",
+        "server": "dns-local"
+      },
+      {
+        "rule_set": [
+          "geosite-ru",
+          "geoip-ru"
+        ],
+        "action": "route",
+        "server": "dns-custom"
+      },
+      {
+	"query_type": [
+	  "A",
+	  "AAAA"
+	],
+	"server": "dns-proxy"
+      }
+    ],
+    "final": "dns-local",
+    "strategy": "ipv4_only"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "address": "172.19.0.1/30",
+      "mtu": 1500,
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "system"
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "hysteria",
+      "type": "hysteria2",
+      "server": "my.domain.com",
+      "server_port": 443,
+      "password": "REPLACE_ME",
+      "up_mbps": 100,
+      "down_mbps": 100,
+      "tls": {
+        "enabled": true,
+        "server_name": "my.domain.com"
+      }
+    },
+    {
+      "tag": "trojan",
+      "type": "trojan",
+      "server": "my.domain.com",
+      "server_port": 8443,
+      "password": "REPLACE_ME",
+      "tls": {
+	"enabled": true,
+	"server_name": "my.domain.com"
+      },
+      "transport": {
+        "type": "grpc",
+        "service_name": "api.Gateway",
+        "idle_timeout": "15s",
+        "ping_timeout": "15s",
+        "permit_without_stream": false
+      }
+    },
+    {
+      "tag": "direct",
+      "type": "direct"
+    }
+  ],
+  "route": {
+    "auto_detect_interface": true,
+    "default_domain_resolver": "dns-custom",
+    "rule_set": [
+      {
+        "tag": "geosite-kontur",
+        "type": "inline",
+	"rules": [
+	  {
+	    "domain": [
+	      "skbkontur.ru",
+              "kontur.host"
+	    ],
+	    "domain_suffix": [
+              ".kontur"
+            ]
+	  }
+	]
+      },
+      {
+        "tag": "geosite-ru",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ru.srs",
+        "download_detour": "hysteria"
+      },
+      {
+        "tag": "geoip-ru",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs",
+        "download_detour": "hysteria"
+      }
+    ],
+    "rules": [
+      {
+        "action": "sniff"
+      },
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "ip_is_private": true,
+        "action": "route",
+        "outbound": "direct"
+      },
+      {
+        "rule_set": [
+          "geosite-kontur",
+          "geosite-ru",
+          "geoip-ru"
+        ],
+        "action": "route",
+        "outbound": "direct"
+      }
+    ],
+    "final": "hysteria"
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true
+    }
+  }
+}
