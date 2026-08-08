@@ -1,5 +1,7 @@
 {
-  "log": { "level": "warn" },
+  "log": {
+    "level": "warn"
+  },
   "dns": {
     "servers": [
       {
@@ -18,13 +20,15 @@
       "listen_port": 443,
       "users": [
         {
-	  "name": "REPLACE_ME",
+          "name": "REPLACE_ME",
           "password": "REPLACE_ME"
         }
       ],
       "tls": {
         "enabled": true,
-        "alpn": [ "h3" ],
+        "alpn": [
+          "h3"
+        ],
         "certificate_path": "/etc/letsencrypt/live/my.domain.com/fullchain.pem",
         "key_path": "/etc/letsencrypt/live/my.domain.com/privkey.pem"
       },
@@ -42,7 +46,10 @@
       ],
       "tls": {
         "enabled": true,
-        "alpn": [ "h2", "h3" ],
+        "alpn": [
+          "h2",
+          "h3"
+        ],
         "certificate_path": "/etc/letsencrypt/live/my.domain.com/fullchain.pem",
         "key_path": "/etc/letsencrypt/live/my.domain.com/privkey.pem"
       },
@@ -73,14 +80,23 @@
       }
     ],
     "rules": [
-      { "action": "sniff" },
-      { "outbound": "direct", "ip_is_private": true },
-      { "action": "reject", "rule_set": "rules" }
+      {
+        "action": "sniff"
+      },
+      {
+        "outbound": "direct",
+        "ip_is_private": true
+      },
+      {
+        "action": "reject",
+        "rule_set": "rules"
+      }
     ],
     "final": "direct"
   },
   "experimental": {
-    "cache_file": { "enabled": true }
+    "cache_file": {
+      "enabled": true
+    }
   }
 }
-
