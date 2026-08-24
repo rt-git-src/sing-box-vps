@@ -80,7 +80,7 @@
       "tag": "trojan",
       "type": "trojan",
       "server": "my.domain.com",
-      "server_port": 8443,
+      "server_port": 443,
       "password": "REPLACE_ME",
       "tls": {
 	"enabled": true,
