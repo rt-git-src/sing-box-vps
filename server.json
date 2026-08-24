@@ -36,8 +36,8 @@
     },
     {
       "type": "trojan",
-      "listen": "0.0.0.0",
-      "listen_port": 8443,
+      "listen": "::",
+      "listen_port": 443,
       "users": [
         {
           "name": "REPLACE_ME",
@@ -71,14 +71,6 @@
   "route": {
     "auto_detect_interface": true,
     "default_domain_resolver": "dns-custom",
-    "rule_set": [
-      {
-        "tag": "rules",
-        "type": "local",
-        "format": "binary",
-        "path": "/var/lib/sing-box/rules.srs"
-      }
-    ],
     "rules": [
       {
         "action": "sniff"
@@ -86,10 +78,6 @@
       {
         "outbound": "direct",
         "ip_is_private": true
-      },
-      {
-        "action": "reject",
-        "rule_set": "rules"
       }
     ],
     "final": "direct"
