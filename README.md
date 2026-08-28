@@ -6,7 +6,7 @@
 ## Setup container files
 ```
 apt update && \
-apt upgrade && \
+apt upgrade -y && \
 apt install podman-compose certbot && \
 certbot certonly --register-unsafely-without-email --standalone -d vpn.yourdomain.com && \
 systemctl enable certbot.timer && \
