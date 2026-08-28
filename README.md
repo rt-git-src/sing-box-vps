@@ -3,12 +3,12 @@
 - add a subdomain, e.g. [here](https://freedns.afraid.org/), and relate it with the VPS's IP
 - `ssh root@your_vps_ip`
 
-## Setup container files
+## Setup container files (replace `my.domain.com` with your domain)
 ```
 apt update && \
 apt upgrade -y && \
 apt install podman-compose certbot && \
-certbot certonly --register-unsafely-without-email --standalone -d vpn.yourdomain.com && \
+certbot certonly --register-unsafely-without-email --standalone -d my.domain.com && \
 systemctl enable certbot.timer && \
 systemctl start certbot.timer && \
 mkdir -p container && \
