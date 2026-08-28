@@ -1,7 +1,7 @@
 ## Prepare
 - get a VPS, e.g. [HostVDS](https://hostvds.com/)
 - add a subdomain, e.g. [here](https://freedns.afraid.org/), and relate it with the VPS's IP
-- `ssh root@your_vps_ip`
+- `ssh root@my.vps.ip` or `ssh root@my.domain.com`
 
 ## Setup container files (replace `my.domain.com` with your domain)
 ```
