@@ -7,7 +7,7 @@
       {
         "tag": "dns-custom",
         "type": "https",
-        "server": "8.8.8.8"
+        "server": "9.9.9.9"
       }
     ],
     "final": "dns-custom",
