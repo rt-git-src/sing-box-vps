@@ -9,7 +9,7 @@ services:
 
   sing-box:
     <<: *common
-    image: ghcr.io/sagernet/sing-box:v1.13.19
+    image: ghcr.io/sagernet/sing-box:v1.14.1
     container_name: sing-box
     ports:
       - "443:443/udp"
